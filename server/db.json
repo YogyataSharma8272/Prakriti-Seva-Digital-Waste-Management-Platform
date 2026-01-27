@@ -1,0 +1,21 @@
+{
+  "products": [
+    {
+      "id": 1001,
+      "title": "Upcycled Jute Tote",
+      "price": 249,
+      "image": null,
+      "description": "Handmade tote bag from recycled jute and fabric scraps",
+      "createdAt": "2025-11-09T15:43:43.013Z"
+    },
+    {
+      "id": 1002,
+      "title": "Recycled Paper Notebook",
+      "price": 99,
+      "image": null,
+      "description": "A5 notebook made from 100% post-consumer paper",
+      "createdAt": "2025-11-09T15:43:43.018Z"
+    }
+  ],
+  "orders": []
+}
