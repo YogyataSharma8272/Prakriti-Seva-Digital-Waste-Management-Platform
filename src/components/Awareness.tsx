@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -27,6 +27,43 @@ export function Awareness() {
   const [selectedAnswers, setSelectedAnswers] = useState<number[]>([]);
   const [showQuizResults, setShowQuizResults] = useState(false);
   const [currentSuccessStory, setCurrentSuccessStory] = useState(0);
+
+  // Admin-added awareness content from API (all types)
+  const [allAdminContent, setAllAdminContent] = useState<Array<{
+    _id: string;
+    title: string;
+    description: string;
+    type: string;
+    link?: string;
+    thumbnail?: string;
+    duration?: string;
+    category?: string;
+  }>>([]);
+  const [selectedVideo, setSelectedVideo] = useState<{ title: string; link: string; embedUrl: string | null } | null>(null);
+
+  useEffect(() => {
+    const API_BASE = (import.meta as any).env?.VITE_CORE_API_BASE_URL || 'http://localhost:5002/api';
+    fetch(`${API_BASE}/awareness`)
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) setAllAdminContent(data);
+      })
+      .catch(() => {});
+  }, []);
+
+  const apiVideos = allAdminContent.filter(i => i.type === 'video');
+  const apiNonVideos = allAdminContent.filter(i => i.type !== 'video');
+
+  function getYoutubeEmbedUrl(url: string): string | null {
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : null;
+  }
+
+  function openVideo(video: { title: string; link: string }) {
+    if (!video.link) return;
+    const embedUrl = getYoutubeEmbedUrl(video.link);
+    setSelectedVideo({ title: video.title, link: video.link, embedUrl });
+  }
 
   const infographics = [
     {
@@ -186,6 +223,37 @@ export function Awareness() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-orange-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Video Watch Modal */}
+        {selectedVideo && (
+          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setSelectedVideo(null)}>
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden w-full max-w-3xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between px-5 py-3 border-b">
+                <h3 className="font-bold text-gray-900 text-base line-clamp-1">{selectedVideo.title}</h3>
+                <button onClick={() => setSelectedVideo(null)} className="text-gray-500 hover:text-gray-900 text-2xl leading-none">&times;</button>
+              </div>
+              {selectedVideo.embedUrl ? (
+                <div className="relative" style={{ paddingTop: '56.25%' }}>
+                  <iframe
+                    src={selectedVideo.embedUrl}
+                    title={selectedVideo.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  />
+                </div>
+              ) : (
+                <div className="p-6 text-center">
+                  <p className="text-gray-600 mb-4">This video cannot be embedded. Click below to watch it.</p>
+                  <a href={selectedVideo.link} target="_blank" rel="noreferrer"
+                    className="inline-flex items-center gap-2 bg-green-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-green-700">
+                    <Play className="h-4 w-4" /> Watch Video
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="text-center mb-16 relative">
           {/* Sacred Background Elements */}
@@ -271,7 +339,79 @@ export function Awareness() {
           </div>
         </div>
 
-        {/* Video Tutorials Section */}
+        {/* Admin Content Section — shown whenever admin has added anything */}
+        {allAdminContent.length > 0 && (
+          <section className="mb-16">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-3xl font-bold" style={{ color: 'var(--nature-green)' }}>Featured Content</h2>
+              <Badge className="px-4 py-2 text-white" style={{ backgroundColor: 'var(--nature-green)' }}>
+                <BookOpen className="h-4 w-4 mr-1" />
+                {allAdminContent.length} Item{allAdminContent.length !== 1 ? 's' : ''}
+              </Badge>
+            </div>
+
+            {/* Video tutorials from admin */}
+            {apiVideos.length > 0 && (
+              <div className="grid md:grid-cols-2 gap-6 mb-6">
+                {apiVideos.map((video) => (
+                  <Card key={video._id} className="bg-white hover:shadow-lg transition-shadow duration-200 overflow-hidden group cursor-pointer" onClick={() => openVideo(video)}>
+                    <div className="relative">
+                      {video.thumbnail ? (
+                        <ImageWithFallback src={video.thumbnail} alt={video.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-200" />
+                      ) : (
+                        <div className="w-full h-48 bg-gradient-to-br from-green-100 to-teal-100 flex items-center justify-center">
+                          <Video className="h-12 w-12 text-green-400" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="bg-white/90 p-3 rounded-full"><Play className="h-8 w-8 text-green-600" /></div>
+                      </div>
+                      {video.duration && (
+                        <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-sm">{video.duration}</div>
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <Badge variant="outline" className="text-xs">{video.category || 'Tutorial'}</Badge>
+                        <span className="text-xs text-teal-600 font-semibold">▶ Watch Now</span>
+                      </div>
+                      <h3 className="font-semibold text-gray-900 line-clamp-2">{video.title}</h3>
+                      {video.description && <p className="text-xs text-gray-500 mt-1 line-clamp-2">{video.description}</p>}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Non-video content from admin (stories, infographics, quiz links) */}
+            {apiNonVideos.length > 0 && (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {apiNonVideos.map((item) => {
+                  const typeIcon: Record<string, string> = { story: '📖', infographic: '📊', quiz: '🧠' };
+                  const typeBg: Record<string, string> = { story: 'bg-green-50 border-green-200', infographic: 'bg-blue-50 border-blue-200', quiz: 'bg-yellow-50 border-yellow-200' };
+                  return (
+                    <div key={item._id} className={`rounded-xl border p-4 ${typeBg[item.type] || 'bg-gray-50 border-gray-200'}`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xl">{typeIcon[item.type] || '📄'}</span>
+                        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{item.type}</span>
+                      </div>
+                      <h4 className="font-semibold text-gray-900 mb-1">{item.title}</h4>
+                      <p className="text-sm text-gray-600 line-clamp-3">{item.description}</p>
+                      {item.link && (
+                        <a href={item.link} target="_blank" rel="noreferrer"
+                          className="inline-flex items-center gap-1 mt-3 text-sm font-medium text-green-700 hover:underline">
+                          🔗 Read More
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Video Tutorials Section (static) */}
         <section className="mb-16">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-3xl font-bold" style={{ color: 'var(--nature-green)' }}>Video Tutorials</h2>
@@ -280,8 +420,7 @@ export function Awareness() {
               {videoTutorials.length} Sacred Teachings
             </Badge>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8">
             {videoTutorials.map((video, index) => (
               <Card key={index} className="bg-white hover:shadow-lg transition-shadow duration-200 overflow-hidden group cursor-pointer">
                 <div className="relative">
@@ -301,9 +440,7 @@ export function Awareness() {
                 </div>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
-                    <Badge variant="outline" className="text-xs">
-                      {video.category}
-                    </Badge>
+                    <Badge variant="outline" className="text-xs">{video.category}</Badge>
                     <span className="text-xs text-gray-500">{video.views} views</span>
                   </div>
                   <h3 className="font-semibold text-gray-900 line-clamp-2">{video.title}</h3>

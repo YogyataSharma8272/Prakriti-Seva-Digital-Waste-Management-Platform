@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -24,34 +24,73 @@ import {
   CheckCircle,
   AlertCircle,
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Loader
 } from 'lucide-react';
 import { format } from 'date-fns';
 
+const API_BASE = (import.meta as any).env?.VITE_CORE_API_BASE_URL || 'http://localhost:5002/api';
+
 interface FormData {
-  templeName: string;
+  temple: string;
   contactPerson: string;
-  phone: string;
+  contactNumber: string;
   address: string;
   wasteType: string;
-  estimatedWeight: string;
-  date: Date | undefined;
+  quantity: string;
+  scheduleDate: Date | undefined;
   timeSlot: string;
   regularPickup: boolean;
   frequency: string;
   specialInstructions: string;
 }
 
+interface MyPickup {
+  _id: string;
+  temple: string;
+  address: string;
+  status: string;
+  scheduleDate: string;
+  quantity: string;
+  wasteType: string;
+  assignedVolunteer?: string;
+  vehicleNumber?: string;
+  estimatedArrival?: string;
+  trackingNote?: string;
+  currentLocation?: string;
+  mapQuery?: string;
+  createdAt: string;
+}
+
+function getTrackingSteps(status: string) {
+  return [
+    { label: 'Request Submitted', done: true },
+    { label: 'Approved', done: status === 'Approved' || status === 'InTransit' || status === 'Completed' },
+    { label: 'Pickup In Progress', done: status === 'InTransit' || status === 'Completed' },
+    { label: 'Completed', done: status === 'Completed' },
+  ];
+}
+
+function getMapEmbedUrl(query: string) {
+  return `https://www.google.com/maps?q=${encodeURIComponent(query)}&z=14&output=embed`;
+}
+
 export function WasteCollection() {
   const [showForm, setShowForm] = useState(false);
+  const [showMyPickups, setShowMyPickups] = useState(false);
+  const [myPickups, setMyPickups] = useState<MyPickup[]>([]);
+  const [loadingPickups, setLoadingPickups] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const previousPickupSnapshot = useRef<Record<string, string>>({});
+
   const [formData, setFormData] = useState<FormData>({
-    templeName: '',
+    temple: '',
     contactPerson: '',
-    phone: '',
+    contactNumber: '',
     address: '',
     wasteType: '',
-    estimatedWeight: '',
-    date: undefined,
+    quantity: '',
+    scheduleDate: undefined,
     timeSlot: '',
     regularPickup: false,
     frequency: '',
@@ -74,36 +113,135 @@ export function WasteCollection() {
     '4:00 PM - 6:00 PM'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getAuthToken = () => localStorage.getItem('authToken') || '';
+
+  // Fetch my pickups
+  const fetchMyPickups = async () => {
+    const token = getAuthToken();
+    if (!token) {
+      toast.error('Please login first');
+      return;
+    }
+    setLoadingPickups(true);
+    try {
+      const res = await fetch(`${API_BASE}/pickups/my`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const raw = await res.text();
+      const data = raw ? (() => {
+        try { return JSON.parse(raw); } catch { return { message: raw }; }
+      })() : {};
+      if (res.ok) {
+        const nextPickups = Array.isArray(data) ? data : [];
+        nextPickups.forEach((pickup) => {
+          const snapshot = `${pickup.status}|${pickup.estimatedArrival || ''}|${pickup.currentLocation || ''}`;
+          const previous = previousPickupSnapshot.current[pickup._id];
+          if (previous && previous !== snapshot) {
+            toast.success(`Tracking updated for ${pickup.temple}`);
+          }
+          previousPickupSnapshot.current[pickup._id] = snapshot;
+        });
+        setMyPickups(nextPickups);
+      } else {
+        toast.error(data.message || 'Failed to load pickups');
+      }
+    } catch (e: any) {
+      toast.error('Error loading pickups: ' + e.message);
+    } finally {
+      setLoadingPickups(false);
+    }
+  };
+
+  const updateFormData = (field: keyof FormData, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  useEffect(() => {
+    if (!showMyPickups) return;
+    fetchMyPickups();
+    const intervalId = window.setInterval(() => {
+      fetchMyPickups();
+    }, 30000);
+    return () => window.clearInterval(intervalId);
+  }, [showMyPickups]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const token = getAuthToken();
     
-    // Basic validation
-    if (!formData.templeName || !formData.contactPerson || !formData.phone || 
-        !formData.address || !formData.wasteType || !formData.date || !formData.timeSlot) {
+    if (!token) {
+      toast.error('Please login first');
+      return;
+    }
+
+    // Validation
+    if (!formData.temple || !formData.contactPerson || !formData.contactNumber || 
+        !formData.address || !formData.wasteType || !formData.quantity || !formData.scheduleDate) {
       toast.error('Please fill in all required fields');
       return;
     }
 
-    // Simulate form submission
-    toast.success('Pickup request submitted successfully! We will contact you within 2 hours.');
-    setShowForm(false);
-    setFormData({
-      templeName: '',
-      contactPerson: '',
-      phone: '',
-      address: '',
-      wasteType: '',
-      estimatedWeight: '',
-      date: undefined,
-      timeSlot: '',
-      regularPickup: false,
-      frequency: '',
-      specialInstructions: ''
-    });
-  };
+    if (Number(formData.quantity) <= 0) {
+      toast.error('Quantity must be greater than 0');
+      return;
+    }
 
-  const updateFormData = (field: keyof FormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setSubmitting(true);
+    try {
+      const payload = {
+        temple: formData.temple,
+        address: formData.address,
+        wasteType: formData.wasteType,
+        scheduleDate: formData.scheduleDate?.toISOString(),
+        contactNumber: formData.contactNumber,
+        quantity: Number(formData.quantity),
+        contactPerson: formData.contactPerson,
+        timeSlot: formData.timeSlot,
+        specialInstructions: formData.specialInstructions,
+        regularPickup: formData.regularPickup,
+        frequency: formData.frequency
+      };
+
+      const res = await fetch(`${API_BASE}/pickups/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const raw = await res.text();
+      const data = raw ? (() => {
+        try { return JSON.parse(raw); } catch { return { message: raw }; }
+      })() : {};
+      if (res.ok) {
+        toast.success('✅ Pickup request submitted successfully!');
+        setShowForm(false);
+        setFormData({
+          temple: '',
+          contactPerson: '',
+          contactNumber: '',
+          address: '',
+          wasteType: '',
+          quantity: '',
+          scheduleDate: undefined,
+          timeSlot: '',
+          regularPickup: false,
+          frequency: '',
+          specialInstructions: ''
+        });
+        // Refresh pickups
+        fetchMyPickups();
+      } else {
+        const details = Array.isArray(data?.errors) ? data.errors.join(', ') : '';
+        toast.error(details || data?.message || 'Failed to submit pickup request');
+      }
+    } catch (e: any) {
+      toast.error('Error: ' + e.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (showForm) {
@@ -138,12 +276,12 @@ export function WasteCollection() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="templeName" className="text-green-700">Temple Name *</Label>
+                    <Label htmlFor="temple" className="text-green-700">Temple Name *</Label>
                     <Input
-                      id="templeName"
+                      id="temple"
                       placeholder="Enter temple name"
-                      value={formData.templeName}
-                      onChange={(e) => updateFormData('templeName', e.target.value)}
+                      value={formData.temple}
+                      onChange={(e) => updateFormData('temple', e.target.value)}
                       className="border-green-200 focus:border-green-500"
                     />
                   </div>
@@ -162,30 +300,27 @@ export function WasteCollection() {
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-green-700">Phone Number *</Label>
+                    <Label htmlFor="contactNumber" className="text-green-700">Phone Number *</Label>
                     <Input
-                      id="phone"
+                      id="contactNumber"
                       type="tel"
                       placeholder="+91 XXXXX XXXXX"
-                      value={formData.phone}
-                      onChange={(e) => updateFormData('phone', e.target.value)}
+                      value={formData.contactNumber}
+                      onChange={(e) => updateFormData('contactNumber', e.target.value)}
                       className="border-green-200 focus:border-green-500"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="estimatedWeight" className="text-green-700">Estimated Weight</Label>
-                    <Select onValueChange={(value) => updateFormData('estimatedWeight', value)}>
-                      <SelectTrigger className="border-green-200 focus:border-green-500">
-                        <SelectValue placeholder="Select estimated weight" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="light">Light (1-5 kg)</SelectItem>
-                        <SelectItem value="medium">Medium (5-20 kg)</SelectItem>
-                        <SelectItem value="heavy">Heavy (20-50 kg)</SelectItem>
-                        <SelectItem value="bulk">Bulk (50+ kg)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="quantity" className="text-green-700">Estimated Weight (kg) *</Label>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      placeholder="Enter weight in kg"
+                      value={formData.quantity}
+                      onChange={(e) => updateFormData('quantity', e.target.value)}
+                      className="border-green-200 focus:border-green-500"
+                    />
                   </div>
                 </div>
 
@@ -233,32 +368,54 @@ export function WasteCollection() {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label className="text-green-700">Pickup Date *</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={`w-full justify-start text-left font-normal border-green-200 ${
-                            !formData.date && "text-muted-foreground"
-                          }`}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {formData.date ? format(formData.date, "PPP") : "Pick a date"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={formData.date}
-                          onSelect={(date) => updateFormData('date', date)}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
+                    <div className="flex gap-2">
+                      <input
+                        type="date"
+                        min={new Date().toISOString().split('T')[0]}
+                        value={formData.scheduleDate ? formData.scheduleDate.toISOString().split('T')[0] : ''}
+                        onChange={(e) => {
+                          if (e.target.value) {
+                            const date = new Date(e.target.value + 'T00:00:00');
+                            updateFormData('scheduleDate', date);
+                          } else {
+                            updateFormData('scheduleDate', undefined);
+                          }
+                        }}
+                        className="flex-1 px-3 py-2 border-2 border-green-200 rounded-lg bg-white text-gray-800 font-medium focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                      />
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="border-2 border-green-200 hover:border-green-400 bg-white"
+                            title="Open Calendar"
+                          >
+                            <CalendarIcon className="h-4 w-4 text-green-600" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 bg-white border-2 border-green-300 shadow-2xl z-[9999]" align="start" side="bottom">
+                          <Calendar
+                            mode="single"
+                            selected={formData.scheduleDate}
+                            onSelect={(date) => {
+                              updateFormData('scheduleDate', date);
+                            }}
+                            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                            initialFocus
+                            className="rounded-lg"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    {formData.scheduleDate && (
+                      <p className="text-sm text-green-600 font-medium">
+                        ✓ Selected: {format(formData.scheduleDate, "EEEE, MMMM d, yyyy")}
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-green-700">Time Slot *</Label>
+                    <Label className="text-green-700">Time Slot</Label>
                     <Select onValueChange={(value) => updateFormData('timeSlot', value)}>
                       <SelectTrigger className="border-green-200 focus:border-green-500">
                         <SelectValue placeholder="Select time slot" />
@@ -343,11 +500,21 @@ export function WasteCollection() {
                   
                   <Button 
                     type="submit"
+                    disabled={submitting}
                     className="text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
                     style={{ background: 'linear-gradient(135deg, var(--nature-green) 0%, var(--saffron) 100%)' }}
                   >
-                    Schedule Sacred Pickup
-                    <CheckCircle className="ml-2 h-5 w-5" />
+                    {submitting ? (
+                      <>
+                        <Loader className="mr-2 h-5 w-5 animate-spin" />
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Schedule Sacred Pickup
+                        <CheckCircle className="ml-2 h-5 w-5" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </form>
@@ -427,14 +594,28 @@ export function WasteCollection() {
                   </div>
                 </div>
                 
-                <Button 
-                  onClick={() => setShowForm(true)}
-                  className="w-full text-white py-8 text-xl rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold border-2 border-white/30"
-                  style={{ background: 'linear-gradient(135deg, var(--nature-green) 0%, var(--saffron) 100%)' }}
-                >
-                  Begin Sacred Service
-                  <Sparkles className="ml-2 h-6 w-6" />
-                </Button>
+                <div className="flex gap-3">
+                  <Button 
+                    onClick={() => setShowForm(true)}
+                    className="flex-1 text-white py-8 text-xl rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold border-2 border-white/30"
+                    style={{ background: 'linear-gradient(135deg, var(--nature-green) 0%, var(--saffron) 100%)' }}
+                  >
+                    Begin Sacred Service
+                    <Sparkles className="ml-2 h-6 w-6" />
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => {
+                      setShowMyPickups(!showMyPickups);
+                      if (!showMyPickups) fetchMyPickups();
+                    }}
+                    variant="outline"
+                    className="px-8 py-3 rounded-xl font-semibold border-2"
+                    style={{ borderColor: 'var(--nature-green)', color: 'var(--nature-green)' }}
+                  >
+                    My Pickups
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -447,6 +628,90 @@ export function WasteCollection() {
             />
           </div>
         </div>
+
+        {/* My Pickups Section */}
+        {showMyPickups && (
+          <div className="mb-16 bg-white rounded-xl shadow-lg p-8 border-2" style={{ borderColor: 'var(--saffron-light)' }}>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6" style={{ color: 'var(--nature-green)' }}>
+              📦 My Pickup Requests
+            </h2>
+            
+            {loadingPickups ? (
+              <div className="text-center py-8">
+                <Loader className="h-8 w-8 animate-spin mx-auto mb-2" style={{ color: 'var(--nature-green)' }} />
+                <p className="text-gray-600">Loading your pickups...</p>
+              </div>
+            ) : myPickups.length === 0 ? (
+              <p className="text-center text-gray-500 py-8">No pickup requests yet. Create one to get started!</p>
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {myPickups.map((pickup) => (
+                  <Card key={pickup._id} className="border-2 hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-bold text-lg text-gray-900">{pickup.temple}</h3>
+                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          pickup.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                          pickup.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {pickup.status}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2 text-sm text-gray-600">
+                        <p>🗑️ <strong>Type:</strong> {pickup.wasteType}</p>
+                        <p>📦 <strong>Qty:</strong> {pickup.quantity} kg</p>
+                        <p>📅 <strong>Date:</strong> {new Date(pickup.scheduleDate).toLocaleDateString('en-IN')}</p>
+                        <p>📍 <strong>Address:</strong> {pickup.address}</p>
+                        <p className="text-xs text-gray-400">Created: {new Date(pickup.createdAt).toLocaleString('en-IN')}</p>
+                      </div>
+
+                      {(pickup.status === 'Approved' || pickup.status === 'Completed') && (
+                        <div className="mt-4 rounded-xl border border-green-100 bg-green-50 p-4 space-y-3">
+                          <p className="font-semibold text-green-800">Live Pickup Tracking</p>
+                          <div className="grid grid-cols-2 gap-2 text-xs text-gray-700">
+                            <p><strong>Volunteer:</strong> {pickup.assignedVolunteer || 'Assigned soon'}</p>
+                            <p><strong>Vehicle:</strong> {pickup.vehicleNumber || 'Will be updated'}</p>
+                            <p><strong>ETA:</strong> {pickup.estimatedArrival || 'Awaiting update'}</p>
+                            <p><strong>Note:</strong> {pickup.trackingNote || 'Team will contact you shortly'}</p>
+                            <p className="col-span-2"><strong>Current Location:</strong> {pickup.currentLocation || 'Pickup team is preparing route'}</p>
+                          </div>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {getTrackingSteps(pickup.status).map((step) => (
+                              <div key={step.label} className={`rounded-lg px-3 py-2 text-center text-xs font-medium ${step.done ? 'bg-green-600 text-white' : 'bg-white text-gray-500 border border-gray-200'}`}>
+                                {step.label}
+                              </div>
+                            ))}
+                          </div>
+                          <div className="overflow-hidden rounded-xl border border-green-200 bg-white">
+                            <iframe
+                              title={`Pickup map ${pickup._id}`}
+                              src={getMapEmbedUrl(pickup.mapQuery || pickup.currentLocation || pickup.address || pickup.temple)}
+                              className="h-56 w-full"
+                              loading="lazy"
+                              referrerPolicy="no-referrer-when-downgrade"
+                            />
+                          </div>
+                          <div className="flex gap-2 flex-wrap">
+                            <a
+                              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pickup.mapQuery || pickup.currentLocation || pickup.address || pickup.temple)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center rounded-lg bg-white px-3 py-2 text-xs font-semibold text-green-700 border border-green-200 hover:bg-green-100"
+                            >
+                              Open Live Pickup Map
+                            </a>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Waste Types Section */}
         <div className="mb-16">

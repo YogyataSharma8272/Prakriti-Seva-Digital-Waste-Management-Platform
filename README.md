@@ -7,7 +7,18 @@
 
   Run `npm i` to install the dependencies.
 
-  Run `npm run dev` to start the development server.
+  Run `npm run dev` to start only the frontend development server.
+
+  Run `npm run dev:all` to start frontend + both backend services together.
+
+  If needed, start each service separately:
+  - `npm run dev:backend` (auth/waste/leaderboard API on `http://localhost:5002`)
+  - `npm run dev:server` (store/checkout API on `http://localhost:4000`)
+  - `npm run dev:frontend` (Vite app on `http://localhost:3000`)
+
+  Frontend API variables (optional, defaults already set):
+  - `VITE_CORE_API_BASE_URL=http://localhost:5002/api`
+  - `VITE_COMMERCE_API_BASE_URL=http://localhost:4000/api`
 
   ## Backend (optional)
 
@@ -61,5 +72,11 @@ Test the health endpoint:
 ```powershell
 curl http://localhost:4000/api/health
 # should return { "ok": true }
+```
+
+Main backend health (auth/waste service):
+
+```powershell
+curl http://localhost:5002/
 ```
   

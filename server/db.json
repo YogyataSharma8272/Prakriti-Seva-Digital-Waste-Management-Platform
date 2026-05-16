@@ -9,13 +9,62 @@
       "createdAt": "2025-11-09T15:43:43.013Z"
     },
     {
-      "id": 1002,
-      "title": "Recycled Paper Notebook",
-      "price": 99,
+      "id": 1773219230297,
+      "title": "Agarbatti",
+      "price": 50,
       "image": null,
-      "description": "A5 notebook made from 100% post-consumer paper",
-      "createdAt": "2025-11-09T15:43:43.018Z"
+      "description": "",
+      "category": "eco-friendly",
+      "quantity": 25,
+      "createdAt": "2026-03-11T08:53:50.297Z"
+    },
+    {
+      "id": 1773219252780,
+      "title": "Agarbatti",
+      "price": 40,
+      "image": null,
+      "description": "",
+      "category": "eco-friendly",
+      "quantity": 25,
+      "createdAt": "2026-03-11T08:54:12.780Z"
+    },
+    {
+      "id": 1773223206337,
+      "title": "bag",
+      "price": 600,
+      "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUSEhIWFRUVFRUVFRUVFRUXFRUVFRUWFhUVFhUYHSggGBolHRUXITEhJSkrLi4uFx8zODMtNygtLisBCgoKDQ0NFQ8PFSsZFRkrKy03LS0rKy0rKzgrNystLTcrKysrNysrLSs4LTcrNysrListKysuKysrKysrLSsrK//AABEIASUArAMBIgACEQEDEQH/xAAcAAABBAMBAAAAAAAAAAAAAAAAAQIDBAUHCAb/xABNEAABAwIBBgkHBgsHBQAAAAABAAIDBBEhBRIxQVFhBgcTInGBkaHRFDJSkrHB8EJicoKz4QgVIzNTVGNzoqPxJEN0k7LC0hdFg7TD/8QAFgEBAQEAAAAAAAAAAAAAAAAAAAEC/8QAGBEBAQEBAQAAAAAAAAAAAAAAAAERQSH/2gAMAwEAAhEDEQA/AN4oQhAIQhAjnWFzgBpXNXCDjAqaqpleyeVkWcRExr3NaIwbMOa21yQM43vi7cFvXjCrjDkyskBsRBI1p2OeMxpG+7guT6V+a4bNCsHtoOGVazRVT9HKvI7CbLK0vGdlBn9/nbnsjPfm37145zL4phiWsRsuk44aoefHC8fRe09ocR3LanBDhLHX04mjGaQSyRhNyx4sbX1gggg7CuX+TWwuJPK5irjA482oYQBq5SMF7T6vKDrClit8rEcKeEEdDTuqJbkAhrWttnPe44NF+s9AKy603x45RLp4aa/Njj5Uga3vLmi+8NYfXKkCVvHPKfzNLGzYXvdJ3NDfasHV8amUH6JWR/u42+1+cV4/MCQxhaxGdm4d17tNXL9V2b/psq54Y1o53llRh+2k9l7LEiMKllV1m224eKmDpni2y+6tyfDO83k57JDhi6N5bnG2FyAHfWXp1p/8HGvvT1VP6ErJR0SszfbF3rcCyoQhCAQhCAQhCAQhCDwPHhPm5JlHpyQN7JWv/wBi5mfpXRP4QM5bk6Jo+XVMB6BFM72tC51erBn6aS7QdoClJVPJZuwbrj3+9WnStb8fFluIeIydWG04KxQVBgljmY7nRyMe219LHB1juNrdaxUlb8a1WfVk60G8jxzt/Ujf9+LfZrXnCjLfltVJUu5mfmhrPODGtaGgZ2F9BOjWvHCp3pzanepJBmszYQevxTCsdHUnarUdXtx+O1UTLF5Zf5o3k9lvFZFx1txHesRlMglu3G/dZSjaP4OlTarqY/Tga7/Lkt/9Fvxc18RFVmZVY2/52GaMbyA2S38o9i6UWKoQhCAQhCAQhCAQhCDUP4Rc9qekj1umkf1MjzT9oO1aMpYM92ODRi47tnSVtr8ISoL6ulgbi5kL32/fPt1fmVq+WnMYDb6TcnUSNAA12v3qxEskwAs0WA0ABUn1BOAudw+7FSNo3ON3c1uzWegalkIKYNwa228+9aGLipnuxIsN+H9VabRC2rptf2rIin2lI6IXvZMGL/Fjf0h7kfi7YQem9+5ZF8WIttx6EnIXOwKDFmjeNBB3f1TGzkGxwO9ZZ0J1G6ilhPym3HaqIIajf8dnxdPrYeUbnN85oJI2jX1qE0ePNdbc66fA9zHC4OzDEEbLoL/F7X8hlGkl1CeNp3NlPJOPY8rrdcYSROidh9Jh6Dh3hdi5LrRNDFM3zZY2SDoe0OHtWaq0hCFAIQhAIQhAJk0rWtLnENa0EuJNgABcknUE9ae41uF3KvNFC78mw/li0/nHj+7v6LTp39GIeP4eZZZV1stSzzbNjjJ05jBbAas4lxtp52KwAhc4380d+rs0J7yBjpPcOhRPnK0iUZrdAHTr7Sh9QFVzidAupBTuOwKwOL0ApDT/ADj3+KZyO89p8UCk49RSqPk957SjkT6Tu0eCB90olKZyLtRv0gJjgRpHZ9/igtc12BCa6jNuYb7jp6iq7ZBtx34KdryECTQh4LSLEAWvpadvQt+cTuUDLkyJjvPpy6B3Q050dt2Y5nYVoy4cMe3WF6LgHwpfQVAziTC+wlaNBbqkaPSbfRsuNhUsHRCE2KQOAc0gggEEYgg4gg7E5ZUIQhAIQhB53h5l/wAjo3yA2kd+Ti+m4HnW12AJ32A1rnWV9vpHadHSfetjcdOVc6pjgBwhZnEftJMcRtDWtI+ktXl18T/VagQm/j4BSx22dZKjLt1k10ttJt8alUXA8bEjpFWjz3aGWG1+HdpUhpTrcOwn2lAOlA0kdqby42E9SlbTAaz3D2J4p2/BKCsJMb21JeX+ae0eKseTjZ3lN8mb6IQRiUdHUpGvS+TN2e0exRuptbTb43IHOzDg5oUTqUjFjrjYU1xI84YbRo6/gJ7JSOhA2ObGxFjs2qzG4H40FRyBr8DgdRUTM5pzXadR2/eg3ZxQcJuUjNFKefGCYj6Ud8WdLScNx3LZK5fyNlN0E0c7Dzo3NdhrtpB3EXadxXTlPM17Gvabtc0OadocLg9hWaqRCEKAUFfVtijfK82bG1z3dDQSfYp14LjkyvyNEIgedO8NtrzG853fmD6yDSmXMounnkleec95e7pccGjcBh0ALG3SyHV2naTpUZOoaVpDrEmzdOs6gPjUrsUDW46ToudPVs6kQtDRYJ5KodnJpTQUpeFQoclBTM5FxtQPBShyYCgFA+6zOQeD76hrn57Y2NObnO0ufYEtaCQMA5t7kecLXT8m5HgfE0STllTMHmmitzXWuGco/wCRnvY5ov8ANOgr0uTKJ9G1sflrAyZ2dZsd353IyO5r88ZrDyLTfC9maLkGWjw+VKB0TzG4tdgHNc03a9jhdrmkgYdI0gjUsPURZuLdGsLYOVeDcszzJJUxl1iA2OMebGJSwhgdgZBFntHyuUOi2Pk8sQtjnmiabiOWRgJINwxxaDnAC+jTYIMQHX0J+fcZpOHs3qKZmabjQdnsSZygtwOvca9HXqPsXQfFTX8rk6ME3MTnxHcAc5g6mOaFzqyTXs09G1bh4jq7GpgvgcyVve1x72DqSq2whCFkC0hx5ZRzquKIHCGLOtsfI7wa0rd65n4yqvlMo1br3tLyY/8AE0MI7QrB5hz0Uu0kgnZbr09XYq8p8FNE7BVE5PznHrHgml+89qYEqAv09pRcbP4neKEiAw2fxO8UWGz+J3ihCBcNn8TvFLfd3u8UgS2QF93e7xSYbB2nxTgEqCMgeiO/xSt+j3u8U9IgRzAcMQdl1BE7Uer3hWS8EWOnUVUnaQcfi+H3oLDHYrYfErV5leGE/nIpGDukA7I3LW7HL1fF5VCPKNI86DKGHpkBjB/j70HTCEIWVI51hc6BiVyRlOs5aWSX9LJJLj+1kc//AHBdQ8L6rkqGrkGllNO4dIjcR3rlWT2BWCu44jp8fBTxnAKsdPV7lYiO0X61USApyQS/N70cruHagVIkMh3dqTPO746kDkJucd3f4JM7o7/BA9Im3O7v8EZx3dp8EDkJlzsHafBGcdg7fuQOSJucdg7fuQHnd2nwQLdRzDDTtHd9ylzjsb2nwUU2jQNI0EoGwu+O/wB6yOT6kxvY8aWOa9v0mODm94CxbDY/G371cjcg62yfXMmYJI3XaQDvGc0OFxqNiO1WV4rihqhJk6M513MJicL3zeTNmDdzM023r2qyry/GfUBmSqsnXFmDpkcGDvcuZZTpW/8AjzqM3JwZ+kniB6G5z/a0Ln6Y4KwQHSej3DwUzCFBfE/GtT4bLKoeiyQJUCoQi6BUl0qRAIJQkQBRdCEAUiChAJkrhYp6jkOnBBDrPX7lYiKr/HcpYSg3rxI1GbAWAWDpHk/OfZliOhrbHpHXtNaf4j4xIHHPcDTuJzL8x4mAuSNRvE3HctwLKtV8f01qemb6Urj6rR4rRsnvC3Jx/nObTm/5p7mkXGJlaCDbSfM7ztC0xI746irBG06948VYDkykvfDf7lcbGw6Y29IFv9KuIgulusjO5j2taYY25otnMbmOOFucR5x3lV3UkWmzup33K4aq3RdWTSx7H+t9yZ5FH+09YeCYahui6m8jj+f6/wByUUzPnet9yYagQpzTMOkO9cj3I8ki2P8AX+5MpqBF1OKGH9p6/wByd+L4dj/XKYarIVryKHY71yjySLY71ymGq2amSDBXPJmagfWKiliAH9UwY747ipW6lGPjvUjBgoNncSeVxBUSNcQBM6nix1EipLSPrZjfrhb8XHtPWujuWGzuYWuGlr2PbI1w22LF1hwbys2rpYaluAlja+3ouI5zeo3HUpVaJ/CBqycoMjBwZAw9DnOeXdzWLzXBTIbKrlC9xaGtAbm2uZH3IxOGhjtO0LMcd0odlOWxvaONp3EA832HrUnF3QOMVW9jy0sjzmkAYu5CpaG3OjnOY76ttacHjGQZrnsNwWuc09IcQR3K1G1UKI4X22O1X2FajNSWQQiyLKgSJUiAQhCBEIQgEoSJboFCUpLouhhCSoJzgeg+xT5yhnvY4aj7EVjvj2oz7BNv8dSdIOb1aFkOoRcgkX147dXtXSPEzntye6F4s6CpqIiNhz88j+Yub6CSxbuIXQvEvlAz01XM7AyV8zyNmdFC4C+4G3UpV8xp3jMqTJlKrJ1TPYOhhLfcp8kVD4W0L43Wzq8teBrs2nAB3FsrxZY/h2b19b/iqj7V6fkzLnINc0wslGe2WPPJAjmYC1sgA04O0HYNCtGOqIWslmZGbsZNIxh2sa9waeyyljCqU98STck3J2k3JKuMVjNSJUiFQJLIRdAhSJyRAiEqRAJUIugUISXTgUCFMlaLHHUnpjm4aEVig3FWM3BRBTMKyKTcM09C3pxHE+RT2/W3/YQLRzhgdx95XQnENS2yc9x+XUyOHVHEz2sKlGmuHI/t9Zvq6j7ZyxMqyfDB166pJ11dT/7EixchVolpxpVpirUyshaiUqVLZVame2A0+xA99QAbKUFVqWnz7hjHvIGcc1pcQPSObew3qOCotzTjsKmqupEAoVQIQkQOQEiEDkICLIFBSEpbJbIMSUsZxRIMSlj0rKo7ed8a10jxJW/FENtOfPfp5eT3WXOTRietdF8SDT+KYidclQf5zx7lKrQvCh162o/xM/2zysfIrvCEf26qGyqqB2TPVGQqonpdHWrjVTptHWrbVqJSuaoKaBtznOzbYlxFzm6yBcXIGpWVFNHfRpSwepyFluipS90LqhvKloc1zYX5jWNdmuziBnnOJNrNwdbS27vL5VZSc3ycyu88yOlDQfk5lg3AfK+NFOw14EafuT4Yb4kYah71nFPpr5uPV0KVOskstIRCLIsgEqSyVAoSpAlCAKaU5BCKxc2Dj0lLFiiYc49KdCMVkNbr6Sum+KiDMyTSDbGX/wCY9z/9y5jB09JXWHAyIMyfRtabgUsAB2/km4pRzJwqbbKFb/jKr7Z6xblleFbT+MKy/wCuVV+uZ9liigsU2jrVpqr0ow61YCsSnIQhURviBN7J4SlIgLpLoskQCEiECgpQU1CB4SpgT0BZInFNKDHTecelLT6Qkn84oi0rKmR6O1dUcXhvkuhv+qwfZtXK0Zs1dZ8EKQxUNLEdLKeFp6RG0HvSjQvG3kzkcqz4WbOGTs+sAx/8cbj9ZeKcF0Dxz8F3VNM2piF5aXOcRrdC4DlBvLc0OH0XAaVoKRqkVNTHDrU4Valdjbdfs/qrS1GaEhcglNJVDs5NukShvxZAXSEpc0be5BYNvcUDLouncmNvclDOnsQMuhSZg3phCATgU1KED2pbJAUyWSwJ3IKEpu49J9qdGowFKbAXOgaVlTaam5SaKG/5x7I/8x4Z712K0WFhoC0HxO8A55almUKmMxwxHPia8EOlePMIacQxvnX1kC2tb9Uqkc0EWIuDgQdBC5q4wOCxoap0djyTyXwO1Fmtl/Sbex6jrXSyxHCng9DXQOgmGnFjx50bwDZ7e21tYJGtQcqWIdcaviytskBVvhJkOajndTzts4YtcPMkZfmyMOw7NINwViL2WpUXCiyrCoOtPFSNiupiWymipJXDOY0OH0gDoGoqry42q1TV0jfMcLbCAR496BTQ1H6Ies3xUD4Jxpid1C/sVs5Wn2s9U/8AJObliXW1h6nD3oKTKec6IndYt7VbhyXOcTmDpJJ7gnnK0p0Bg6nH3qF1ZMdMpG5oaPcguR5Fd8qX1W+8n3KhVwZji0Emx0m18QDqTHyE+dI49LzbsvZVjM0YDadCCdCrGqGwppqjqA9qaYt3sLnQqU9QHYDQO9NdITpPVqSBTVPiC3NxK8Dv+4zt84FtOxw1X502Oi9rN3XOsLzHFxxeSVrmzztLKQEOucHVFtDGbGHW/ZgNrehI4w0BrQAAAAALAAYAAagpVOQhCgEIQUGI4S8Hqati5KqjDwMWu0PYfSY8YtPt13WieGXFzLSkup5RURbDZszdxHmv6Rb6K3nleZ9rBeMynRSPve6sia0HI6xs4Fp2EEHvTeVC2rlHgeJPOCwU/FzjcOcPjeFcNeHEqXll65/Fw/VKfVCifxdT6pR6h/5Jhry3lJ296Tyg7V6f/pzU/pG+q7xSt4uKjXIPUPig8oJkGRevHFtN+l/ln/knt4tJP0juptvFMNeM5TalzgvcN4tH63vPUPBTM4tDtf2Jia8DygSh2zFbHh4trandiyNNwCa35B6wrhrWdJQSSGwbbefBbB4F8HaaNzZJmCZwxAePyYP7vQfrXXoKXgpbQzuWVpsgOHySmGvZZPyy1wAWXY8HELyNDktwtgvT0UZAxWbFlWUIQooQhCCCSIFM8lbsHYhCqE8iZ6I7EnkLPRHYhCbVwnkEfojsR5BH6I7EITaYPII/RHYjyFnohCE2hRRM9EJfI2bAhCbUL5I3YOxL5M3YhCbTB5O3YjyduxCE0wvIBKIghCap7WBPASoUAhCEH//Z",
+      "description": "",
+      "category": "eco-friendly",
+      "quantity": 23,
+      "createdAt": "2026-03-11T10:00:06.337Z"
+    },
+    {
+      "id": 1773225430098,
+      "title": "Tothbrush",
+      "price": 200,
+      "image": "https://bambooindia.com/cdn/shop/products/DSC_8483-Edit_1900x.jpg?v=1764616802",
+      "description": "",
+      "category": "eco-friendly",
+      "quantity": 24,
+      "createdAt": "2026-03-11T10:37:10.098Z"
     }
   ],
-  "orders": []
+  "orders": [
+    {
+      "id": 1772014115250,
+      "productId": 1001,
+      "quantity": 1,
+      "amount": 249,
+      "status": "created",
+      "createdAt": "2026-02-25T10:08:35.250Z"
+    },
+    {
+      "id": 1772014124404,
+      "productId": 1002,
+      "quantity": 1,
+      "amount": 99,
+      "status": "created",
+      "createdAt": "2026-02-25T10:08:44.404Z"
+    }
+  ]
 }

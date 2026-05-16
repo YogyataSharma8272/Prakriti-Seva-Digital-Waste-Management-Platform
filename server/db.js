@@ -1,53 +1,133 @@
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
+const Product = require('./models/Product');
 
-const DB_FILE = path.join(__dirname, 'db.json');
+let isConnected = false;
 
-function readDB() {
-  if (!fs.existsSync(DB_FILE)) {
-    const initial = { products: [], orders: [] };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2));
-    return initial;
+const checkoutOrderSchema = new mongoose.Schema(
+  {
+    id: { type: Number, index: true, unique: true },
+    productId: { type: String, required: true },
+    quantity: { type: Number, default: 1 },
+    amount: { type: Number, required: true },
+    status: { type: String, default: 'created' },
+    paidAt: Date,
+    stripeSessionId: String,
+  },
+  { timestamps: true }
+);
+
+const CheckoutOrder = mongoose.models.CheckoutOrder || mongoose.model('CheckoutOrder', checkoutOrderSchema);
+
+async function connect() {
+  if (isConnected && mongoose.connection.readyState === 1) return;
+
+  const mongoUri = process.env.MONGO_URI;
+  if (!mongoUri) {
+    throw new Error('MONGO_URI is missing. Add it in server/.env to connect MongoDB.');
   }
-  return JSON.parse(fs.readFileSync(DB_FILE));
+
+  await mongoose.connect(mongoUri, {
+    dbName: process.env.MONGO_DB_NAME || undefined,
+  });
+  isConnected = true;
 }
 
-function writeDB(data) {
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+function normalizeProduct(doc) {
+  const obj = doc.toObject ? doc.toObject() : doc;
+  return {
+    ...obj,
+    id: String(obj._id),
+  };
+}
+
+function normalizeOrder(doc) {
+  const obj = doc.toObject ? doc.toObject() : doc;
+  return {
+    ...obj,
+    id: obj.id,
+  };
 }
 
 module.exports = {
-  getProducts() {
-    return readDB().products;
+  connect,
+
+  async getProducts() {
+    await connect();
+    const products = await Product.find().sort({ createdAt: -1 });
+    return products.map(normalizeProduct);
   },
-  addProduct(product) {
-    const db = readDB();
-    db.products.push(product);
-    writeDB(db);
-    return product;
+
+  async addProduct(product) {
+    await connect();
+    const created = await Product.create({
+      title: product.title,
+      description: product.description || '',
+      price: Number(product.price),
+      category: product.category || 'eco-friendly',
+      image: product.image || null,
+      quantity: Number(product.quantity || 0),
+      createdAt: product.createdAt || new Date(),
+      updatedAt: new Date(),
+    });
+    return normalizeProduct(created);
   },
-  getProductById(id) {
-    return readDB().products.find((p) => String(p.id) === String(id));
+
+  async updateProduct(id, patch) {
+    await connect();
+    const updated = await Product.findByIdAndUpdate(
+      id,
+      { ...patch, updatedAt: new Date() },
+      { new: true }
+    );
+    return updated ? normalizeProduct(updated) : null;
   },
-  addOrder(order) {
-    const db = readDB();
-    db.orders.push(order);
-    writeDB(db);
-    return order;
+
+  async deleteProduct(id) {
+    await connect();
+    const result = await Product.findByIdAndDelete(id);
+    return !!result;
   },
-  getOrders() {
-    return readDB().orders || [];
+
+  async getProductById(id) {
+    await connect();
+    const product = await Product.findById(id);
+    return product ? normalizeProduct(product) : null;
   },
-  getOrderById(id) {
-    return (readDB().orders || []).find((o) => String(o.id) === String(id));
+
+  async addOrder(order) {
+    await connect();
+    const created = await CheckoutOrder.create({
+      id: Number(order.id || Date.now()),
+      productId: String(order.productId),
+      quantity: Number(order.quantity || 1),
+      amount: Number(order.amount || 0),
+      status: order.status || 'created',
+      paidAt: order.paidAt,
+      stripeSessionId: order.stripeSessionId,
+    });
+    return normalizeOrder(created);
   },
-  updateOrder(id, patch) {
-    const db = readDB();
-    const idx = (db.orders || []).findIndex((o) => String(o.id) === String(id));
-    if (idx === -1) return null;
-    db.orders[idx] = Object.assign({}, db.orders[idx], patch);
-    writeDB(db);
-    return db.orders[idx];
+
+  async getOrders() {
+    await connect();
+    const orders = await CheckoutOrder.find().sort({ createdAt: -1 });
+    return orders.map(normalizeOrder);
+  },
+
+  async getOrderById(id) {
+    await connect();
+    const order = await CheckoutOrder.findOne({ id: Number(id) });
+    return order ? normalizeOrder(order) : null;
+  },
+
+  async updateOrder(id, patch) {
+    await connect();
+    const updated = await CheckoutOrder.findOneAndUpdate(
+      { id: Number(id) },
+      { ...patch },
+      { new: true }
+    );
+    return updated ? normalizeOrder(updated) : null;
   },
 };
 

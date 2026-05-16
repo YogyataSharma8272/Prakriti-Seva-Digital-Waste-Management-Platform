@@ -1,4 +1,8 @@
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch {
+  // dotenv is optional for local/demo startup
+}
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -29,13 +33,12 @@ app.post('/api/webhooks/stripe', require('express').raw({ type: 'application/jso
 
 // Seed sample recycled products if DB is empty
 const db = require('./db');
-function seedProductsIfEmpty() {
+async function seedProductsIfEmpty() {
   try {
-    const products = db.getProducts();
+    const products = await db.getProducts();
     if (!products || products.length === 0) {
       const sample = [
         {
-          id: 1001,
           title: 'Upcycled Jute Tote',
           price: 249,
           image: null,
@@ -43,7 +46,6 @@ function seedProductsIfEmpty() {
           createdAt: new Date().toISOString(),
         },
         {
-          id: 1002,
           title: 'Recycled Paper Notebook',
           price: 99,
           image: null,
@@ -51,15 +53,13 @@ function seedProductsIfEmpty() {
           createdAt: new Date().toISOString(),
         },
       ];
-      sample.forEach((p) => db.addProduct(p));
+      await Promise.all(sample.map((p) => db.addProduct(p)));
       console.log('Seeded sample products');
     }
   } catch (err) {
     console.error('Failed to seed products', err);
   }
 }
-
-seedProductsIfEmpty();
 
 // A simple mock success page for when Stripe isn't configured
 app.get('/mock-checkout-success', (req, res) => {
@@ -71,4 +71,13 @@ app.get('/mock-checkout-success', (req, res) => {
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+(async () => {
+  try {
+    await db.connect();
+    await seedProductsIfEmpty();
+    app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
+  } catch (err) {
+    console.error('Failed to start server:', err.message);
+    process.exit(1);
+  }
+})();

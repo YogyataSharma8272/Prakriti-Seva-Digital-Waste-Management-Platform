@@ -11,7 +11,7 @@ if (stripeSecret) stripe = Stripe(stripeSecret);
 router.post('/', async (req, res) => {
   try {
     const { productId, quantity = 1 } = req.body;
-    const product = db.getProductById(productId);
+    const product = await db.getProductById(productId);
     if (!product) return res.status(404).json({ error: 'product not found' });
 
     const order = {
@@ -23,11 +23,11 @@ router.post('/', async (req, res) => {
       createdAt: new Date().toISOString(),
     };
 
-    db.addOrder(order);
+    const savedOrder = await db.addOrder(order);
 
     if (!stripe) {
       // No Stripe key provided: return a mock confirmation URL
-      return res.json({ url: `/mock-checkout-success?orderId=${order.id}`, order });
+      return res.json({ url: `/mock-checkout-success?orderId=${savedOrder.id}`, order: savedOrder });
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -45,10 +45,10 @@ router.post('/', async (req, res) => {
       mode: 'payment',
       success_url: `${process.env.SUCCESS_URL || 'https://example.com'}/?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CANCEL_URL || 'https://example.com'}`,
-      metadata: { orderId: String(order.id) },
+      metadata: { orderId: String(savedOrder.id) },
     });
 
-    res.json({ url: session.url, sessionId: session.id, order });
+    res.json({ url: session.url, sessionId: session.id, order: savedOrder });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'server error' });

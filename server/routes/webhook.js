@@ -28,7 +28,7 @@ router.post('/', async (req, res) => {
     const session = event.data.object;
     const orderId = session.metadata && session.metadata.orderId;
     if (orderId) {
-      db.updateOrder(orderId, { status: 'paid', paidAt: new Date().toISOString(), stripeSessionId: session.id });
+      await db.updateOrder(orderId, { status: 'paid', paidAt: new Date().toISOString(), stripeSessionId: session.id });
       console.log(`Order ${orderId} marked as paid via webhook`);
     }
   }

@@ -29,6 +29,8 @@
             "@radix-ui/react-toggle": "^1.1.2",
             "@radix-ui/react-toggle-group": "^1.1.2",
             "@radix-ui/react-tooltip": "^1.1.8",
+            "@react-oauth/google": "^0.13.4",
+            "axios": "^1.11.0",
             "class-variance-authority": "^0.7.1",
             "clsx": "*",
             "cmdk": "^1.1.1",
@@ -52,10 +54,19 @@
             "@types/react": "^19.2.2",
             "@types/react-dom": "^19.2.1",
             "@vitejs/plugin-react-swc": "^3.10.2",
+            "concurrently": "^9.2.1",
+            "cross-env": "^7.0.3",
             "vite": "6.3.5"
       },
       "scripts": {
-            "dev": "vite",
+            "dev": "npm run dev:all",
+            "dev:web": "vite",
+            "dev:frontend": "vite",
+            "dev:backend": "cross-env PORT=5002 npm run dev --prefix backend",
+            "dev:server": "cross-env PORT=4000 npm run dev --prefix server",
+            "dev:admin:web": "vite --port 3002 --open /admin.html",
+            "dev:admin": "concurrently \"npm run dev:backend\" \"npm run dev:server\" \"npm run dev:admin:web\"",
+            "dev:all": "concurrently \"npm run dev:backend\" \"npm run dev:server\" \"npm run dev:frontend\"",
             "build": "vite build"
       }
 }
